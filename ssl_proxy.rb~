@@ -1,6 +1,7 @@
 require "socket"
 require "openssl"
 class SSLProxy
+  r = Redis.new
   puts "Remote host to proxy: "
   host = gets
   puts " Fowarding port to proxy through: "
