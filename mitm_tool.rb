@@ -13,15 +13,17 @@ class MITMTool
   remote_host = host.chomp
   remote_port = port.chomp
   listen_port = hport.chomp
-  max_threads = 5
+  max_threads = 10
   threads = []
   logfilecs = "sslproxy.log" #logfiles will be prefixed with timestamp
   logfilesc = "sslproxy.log" #logfiles will be prefixed with timestamp
   cert = "ca/vswitch.crt"
   key = "ca/vswitch.key"
-  puts "starting server"
+  puts "Starting vSwitch"
   server = TCPServer.new(nil, listen_port)
   lssl_context = OpenSSL::SSL::SSLContext.new(:SSLv3_server)
+                 OpenSSL::SSL::SSLContext.new(:SSLv2_server)
+                 OpenSSL::SSL::SSLContext.new(:TLSv1_server)
   lssl_context.cert = OpenSSL::X509::Certificate.new(File.open(cert))
   lssl_context.key = OpenSSL::PKey::RSA.new(File.open(key))
   lssl_socket = OpenSSL::SSL::SSLServer.new(server,lssl_context)
