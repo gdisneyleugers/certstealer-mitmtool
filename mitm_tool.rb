@@ -30,13 +30,16 @@ class MITMTool
     puts "waiting for connections"
     threads << Thread.new(lssl_socket.accept) do |client_socket|
       begin
+        trap("INT") {OpenSSL::SSL::SSLError}
         time = Time.now.to_i
         puts "#{Thread.current}: got a client connection"
         puts "Successful MitM: #{time}"
       begin
-         trap("INT") {OpenSSL::SSL::SSLError}
+        trap("INT") {OpenSSL::SSL::SSLError}
           server_socket = TCPSocket.new(remote_host, remote_port)
           ssl_context = OpenSSL::SSL::SSLContext.new(:TLSv1_client)
+                        OpenSSL::SSL::SSLContext.new(:SSLv3_client)
+                        OpenSSL::SSL::SSLContext.new(:SSLv2_client)
           ssl_context.verify_mode = OpenSSL::SSL::VERIFY_NONE
           ssl_socket = OpenSSL::SSL::SSLSocket.new(server_socket, ssl_context)
           ssl_socket.sync_close = true
