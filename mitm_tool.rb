@@ -15,8 +15,8 @@ class MITMTool
   listen_port = hport.chomp
   max_threads = 10
   threads = []
-  logfilecs = "sslproxy.log" #logfiles will be prefixed with timestamp
-  logfilesc = "sslproxy.log" #logfiles will be prefixed with timestamp
+  logfilecs = "logs/sslproxy.log" #logfiles will be prefixed with timestamp
+  logfilesc = "logs/sslproxy.log" #logfiles will be prefixed with timestamp
   cert = "ca/vswitch.crt"
   key = "ca/vswitch.key"
   puts "Starting vSwitch"
@@ -36,6 +36,10 @@ class MITMTool
         time = Time.now.to_i
         puts "#{Thread.current}: got a client connection"
         puts "Successful MitM: #{time}"
+        logcs = '' << logfilecs
+        logsc = '' << logfilesc
+        cs = File.new(logcs,"a")
+        sc = File.new(logsc,"a")
       begin
         trap("INT") {OpenSSL::SSL::SSLError}
           server_socket = TCPSocket.new(remote_host, remote_port)
@@ -69,10 +73,12 @@ class MITMTool
                 ssl_socket.write data
                 ssl_socket.flush
                 request = Net::HTTP::Get.new(uri.request_uri)
+                cs.write data
               elsif socket == ssl_socket
                 # Read from server, write to client.
                 client_socket.write data
                 client_socket.flush
+                sc.write data
               end
             end
           rescue OpenSSL::SSL::SSLError
